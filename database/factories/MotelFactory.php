@@ -22,7 +22,6 @@ class MotelFactory extends Factory
             'motel_address' => fake()->address(),
             'phone_number' => fake()->phoneNumber(),
             'email_address' => fake()->unique()->safeEmail(),
-            'manager_id' => User::inRandomOrder()->first()
         ];
     }
 }

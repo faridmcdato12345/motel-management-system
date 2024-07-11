@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('rooms', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('motel_id')->constrained('motels')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('rate_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('room_type_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('room_number');
-            $table->enum('type', ['single', 'double', 'suite']);
-            $table->decimal('price_per_night', 8, 2);
             $table->boolean('is_occupied')->default(false);
             $table->timestamps();
-            $table->unique(['motel_id', 'room_number']);
         });
     }
 

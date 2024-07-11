@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMotelRequest;
+use App\Http\Requests\UpdateMotelRequest;
+use App\Http\Resources\MotelResource;
 use App\Models\Motel;
 use Illuminate\Http\Request;
 
@@ -10,9 +13,23 @@ class MotelController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return inertia('Motel/Index');
+        $query = Motel::query();
+        if($request->has('name')){
+            $query->where('product_name','like','%' . $request->query('name') . '%');
+        }
+        $limit = $request->has('query') ? $request->query('query'): 5;
+        $motels = $query->paginate(intval($limit))->withQueryString();
+        //dd(MotelResource::collection($motels));
+        return inertia('Motel/Index',[
+            'userRoles' => $request->user_roles,
+            'userPermissions' => $request->user_permissions,
+            'user' => auth()->user(),
+            'queryLimit' => intval($limit),
+            'queryName' => $request->has('name') ? $request->query('name') : null,
+            'motels' => $motels
+        ]);
     }
 
     /**
@@ -26,9 +43,14 @@ class MotelController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreMotelRequest $request)
     {
-        
+        try {
+            Motel::create($request->validated());
+            return response()->json(['message' => 'Success! Motel was created.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()]);
+        }
     }
 
     /**
@@ -36,7 +58,7 @@ class MotelController extends Controller
      */
     public function show(Motel $motel)
     {
-        //
+        return response()->json($motel);
     }
 
     /**
@@ -50,9 +72,15 @@ class MotelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Motel $motel)
+    public function update(UpdateMotelRequest $request, Motel $motel)
     {
-        //
+        try {
+            $motel->update($request->validated());
+            return back();
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage());
+        }
+        
     }
 
     /**
@@ -60,6 +88,7 @@ class MotelController extends Controller
      */
     public function destroy(Motel $motel)
     {
-        //
+        $motel->delete();
+        return back();
     }
 }

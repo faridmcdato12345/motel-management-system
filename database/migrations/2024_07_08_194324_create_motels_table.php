@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('motels', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('manager_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('motel_name')->unique();
             $table->string('motel_address');
             $table->string('phone_number');
             $table->string('email_address')->unique();
+            $table->enum('status',['Active','Inactive']);
             $table->timestamps();
         });
     }
